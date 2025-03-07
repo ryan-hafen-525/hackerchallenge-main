@@ -1,0 +1,48 @@
+/* Full-screen Background */
+body {
+    background: url('minecraftbackground.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Semi-transparent overlay */
+.overlay {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 600px;
+}
+
+/* Buttons */
+.btn-custom {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.btn-custom:hover {
+    background-color: #45a049;
+}
+
+/* Leaderboard Table */
+.table-dark {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+}
+
+/* Custom Font */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');

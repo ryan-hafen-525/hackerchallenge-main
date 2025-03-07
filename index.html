@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation Black Hat - Login & Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Full-screen Background */
+        body {
+            background: url('minecraftbackground.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Semi-transparent overlay */
+        .overlay {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        /* Buttons */
+        .btn-custom {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+
+        .btn-custom:hover {
+            background-color: #45a049;
+        }
+
+        /* Input Fields */
+        .form-control {
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+        }
+
+        /* Leaderboard Table */
+        .table-dark {
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+        }
+
+        /* Custom Font */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <h1>🟩 Operation Black Hat 🟩</h1>
+        <p>Register or Login to track your progress and compete on the leaderboard.</p>
+
+        <!-- Registration Form -->
+        <div class="mission-container">
+            <h3>Register</h3>
+            <input type="text" id="reg-username" class="form-control" placeholder="Choose a Username">
+            <input type="password" id="reg-password" class="form-control mt-2" placeholder="Choose a Password">
+            <button class="btn btn-custom mt-2" onclick="registerUser()">Register</button>
+            <p id="register-result" class="mt-2"></p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="mission-container mt-4">
+            <h3>Login</h3>
+            <input type="text" id="username" class="form-control" placeholder="Username">
+            <input type="password" id="password" class="form-control mt-2" placeholder="Password">
+            <button class="btn btn-custom mt-2" onclick="loginUser()">Login</button>
+            <p id="login-result" class="mt-2"></p>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="mission-container mt-4">
+            <h3>🏆 Leaderboard 🏆</h3>
+            <table class="table table-dark table-bordered">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+            <button class="btn btn-custom mt-2" onclick="window.location.href='challenge1.html'">Start Challenge</button>
+        </div>
+    </div>
+
+    <script>
+        const WORKER_API = "https://hacker-challenge-worker.surendra-david-puppala.workers.dev";
+
+        async function registerUser() {
+            const username = document.getElementById("reg-username").value.trim();
+            const password = document.getElementById("reg-password").value.trim();
+            
+            if (!username || !password) {
+                document.getElementById("register-result").innerText = "❌ Both fields are required.";
+                return;
+            }
+
+            try {
+                const response = await fetch(WORKER_API + "/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                document.getElementById("register-result").innerText = data.success ? "✅ Registration successful! You can now log in." : "❌ " + data.message;
+            } catch (error) {
+                console.error("Registration Error:", error);
+                document.getElementById("register-result").innerText = "❌ Registration failed.";
+            }
+        }
+
+        async function loginUser() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            
+            if (!username || !password) {
+                document.getElementById("login-result").innerText = "❌ Both fields are required.";
+                return;
+            }
+
+            try {
+                const response = await fetch(WORKER_API + "/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem("userId", data.userId);
+                    document.getElementById("login-result").innerText = "✅ Login successful! Redirecting...";
+                    setTimeout(() => window.location.href = "challenge1.html", 2000);
+                } else {
+                    document.getElementById("login-result").innerText = "❌ " + data.message;
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                document.getElementById("login-result").innerText = "❌ Login failed.";
+            }
+        }
+
+        async function fetchLeaderboard() {
+            try {
+                const response = await fetch(WORKER_API + "/leaderboard");
+                const leaderboard = await response.json();
+                const leaderboardBody = document.getElementById("leaderboard-body");
+                leaderboardBody.innerHTML = "";
+                leaderboard.forEach((player, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${index + 1}</td><td>${player.username}</td><td>${player.score}</td>`;
+                    leaderboardBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Leaderboard Error:", error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchLeaderboard);
+    </script>
+</body>
+</html>
